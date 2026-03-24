@@ -400,7 +400,10 @@ function Upload-Video {
     try {
         while ($uploaded -lt $fileSize) {
             $read      = $stream.Read($buffer, 0, $buffer.Length)
-            $chunk     = $buffer[0..($read - 1)]
+            # Must be a properly-sized byte[] — PS array slicing produces object[] which
+            # Invoke-WebRequest re-encodes, causing the body to exceed the Content-Range length
+            $chunk     = New-Object byte[] $read
+            [System.Array]::Copy($buffer, $chunk, $read)
             $rangeEnd  = $uploaded + $read - 1
             $percent   = [math]::Round(($uploaded / $fileSize) * 100, 1)
 
