@@ -357,14 +357,20 @@ function Upload-Video {
     Write-Log "  Privacy:  $($Metadata.Privacy)"
 
     # Step 1: Initiate the resumable upload session
+    $snippet = @{
+        title       = $Metadata.Title
+        description = $Metadata.Description
+        categoryId  = $Metadata.CategoryId
+    }
+    # Only include tags when non-empty; PS5.1 serialises @() as null which the API rejects
+    $tagList = @($Metadata.Tags | Where-Object { $_ })
+    if ($tagList.Count -gt 0) {
+        $snippet.tags = $tagList
+    }
+
     $body = @{
-        snippet = @{
-            title       = $Metadata.Title
-            description = $Metadata.Description
-            tags        = $Metadata.Tags
-            categoryId  = $Metadata.CategoryId
-        }
-        status = @{
+        snippet = $snippet
+        status  = @{
             privacyStatus = $Metadata.Privacy
         }
     } | ConvertTo-Json -Depth 5
