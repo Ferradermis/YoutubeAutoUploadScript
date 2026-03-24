@@ -1,0 +1,11 @@
+{
+  "ClientId": "YOUR_CLIENT_ID.apps.googleusercontent.com",
+  "ClientSecret": "YOUR_CLIENT_SECRET",
+  "ScanFolder": "C:\\Videos\\Upload",
+  "StateFile": "uploaded_state.json",
+  "TokenFile": "tokens.json",
+  "DefaultPrivacy": "public",
+  "DefaultCategoryId": "22",
+  "SupportedExtensions": [".mp4", ".mkv", ".avi", ".mov", ".wmv", ".flv", ".webm"],
+  "LogFile": "upload_log.txt"
+}

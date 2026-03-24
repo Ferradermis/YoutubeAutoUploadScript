@@ -1,0 +1,18 @@
+# Auth tokens — never commit these
+tokens.json
+
+# Local config with real credentials
+config.json
+
+# Upload state and logs
+uploaded_state.json
+upload_log.txt
+
+# Claude Code local settings
+.claude/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
