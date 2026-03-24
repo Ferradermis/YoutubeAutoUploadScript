@@ -153,7 +153,7 @@ function Parse-VideoFilename {
     param([System.IO.FileInfo]$File)
 
     $base   = [System.IO.Path]::GetFileNameWithoutExtension($File.Name)
-    $parts  = $base -split "_"
+    $parts  = @($base -split "_")
 
     $dateStr    = $null
     $titlePart  = $null
@@ -449,9 +449,9 @@ function Invoke-ScanAndUpload {
     }
 
     $extensions = $Config.SupportedExtensions
-    $videos     = Get-ChildItem -Path $Config.ScanFolder -File |
+    $videos     = @(Get-ChildItem -Path $Config.ScanFolder -File |
                   Where-Object { $extensions -contains $_.Extension.ToLower() } |
-                  Sort-Object LastWriteTime
+                  Sort-Object LastWriteTime)
 
     if ($videos.Count -eq 0) {
         Write-Log "No video files found in $($Config.ScanFolder)"
