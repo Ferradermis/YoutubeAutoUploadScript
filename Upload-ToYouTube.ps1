@@ -432,7 +432,8 @@ function Get-MimeType {
         ".flv"  = "video/x-flv"
         ".webm" = "video/webm"
     }
-    return $map[$Extension.ToLower()] ?? "video/mp4"
+    $mimeType = $map[$Extension.ToLower()]
+    if ($mimeType) { return $mimeType } else { return "video/mp4" }
 }
 
 # ──────────────────────────────────────────────────────────────────────────────
