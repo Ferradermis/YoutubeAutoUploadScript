@@ -94,6 +94,23 @@ function Write-Log {
 }
 
 # ──────────────────────────────────────────────────────────────────────────────
+# HELPERS
+# ──────────────────────────────────────────────────────────────────────────────
+
+function ConvertTo-Hashtable {
+    param([Parameter(ValueFromPipeline)]$InputObject)
+    process {
+        if ($null -eq $InputObject) { return $null }
+        if ($InputObject -is [System.Collections.Hashtable]) { return $InputObject }
+        $ht = @{}
+        foreach ($prop in $InputObject.PSObject.Properties) {
+            $ht[$prop.Name] = $prop.Value
+        }
+        return $ht
+    }
+}
+
+# ──────────────────────────────────────────────────────────────────────────────
 # CONFIG
 # ──────────────────────────────────────────────────────────────────────────────
 
@@ -125,7 +142,7 @@ function Load-Config {
 function Load-State {
     param([string]$Path)
     if (Test-Path $Path) {
-        return Get-Content $Path -Raw -Encoding UTF8 | ConvertFrom-Json -AsHashtable
+        return Get-Content $Path -Raw -Encoding UTF8 | ConvertFrom-Json | ConvertTo-Hashtable
     }
     return @{}
 }
@@ -201,7 +218,7 @@ function Load-Sidecar {
     $sidecar = [System.IO.Path]::ChangeExtension($VideoFile.FullName, ".json")
     if (Test-Path $sidecar) {
         Write-Log "  Found sidecar: $sidecar"
-        return Get-Content $sidecar -Raw -Encoding UTF8 | ConvertFrom-Json -AsHashtable
+        return Get-Content $sidecar -Raw -Encoding UTF8 | ConvertFrom-Json | ConvertTo-Hashtable
     }
     return $null
 }
@@ -213,13 +230,13 @@ function Build-Metadata {
     $sidecar = Load-Sidecar -VideoFile $VideoFile
 
     # Sidecar values override parsed values
-    $title       = if ($sidecar?.Title)       { $sidecar.Title }       else { $parsed.Title }
-    $description = if ($sidecar?.Description) { $sidecar.Description } else { $parsed.Description }
-    $tags        = if ($sidecar?.Tags)        { @($sidecar.Tags) }     else { $parsed.Tags }
-    $categoryId  = if ($sidecar?.CategoryId)  { $sidecar.CategoryId }  else { $Config.DefaultCategoryId }
-    $privacy     = if ($sidecar?.Privacy)     { $sidecar.Privacy }     `
-                   elseif ($parsed.Privacy)   { $parsed.Privacy }      `
-                   else                       { $Config.DefaultPrivacy }
+    $title       = if ($sidecar -and $sidecar.Title)       { $sidecar.Title }       else { $parsed.Title }
+    $description = if ($sidecar -and $sidecar.Description) { $sidecar.Description } else { $parsed.Description }
+    $tags        = if ($sidecar -and $sidecar.Tags)        { @($sidecar.Tags) }     else { $parsed.Tags }
+    $categoryId  = if ($sidecar -and $sidecar.CategoryId)  { $sidecar.CategoryId }  else { $Config.DefaultCategoryId }
+    $privacy     = if ($sidecar -and $sidecar.Privacy)     { $sidecar.Privacy }     `
+                   elseif ($parsed.Privacy)                { $parsed.Privacy }      `
+                   else                                    { $Config.DefaultPrivacy }
 
     return @{
         Title       = $title
@@ -237,7 +254,7 @@ function Build-Metadata {
 function Load-Tokens {
     param([string]$Path)
     if (Test-Path $Path) {
-        return Get-Content $Path -Raw -Encoding UTF8 | ConvertFrom-Json -AsHashtable
+        return Get-Content $Path -Raw -Encoding UTF8 | ConvertFrom-Json | ConvertTo-Hashtable
     }
     return $null
 }
